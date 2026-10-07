@@ -277,6 +277,41 @@ test('tous les Event IDs de reference ont une explication', () => {
   }
 });
 
+console.log('\n== 12. Non-regression : fichiers volumineux ==');
+
+test('200 000 evenements : lecture et triage sans RangeError', () => {
+  /* Bug corrige : timeRangeOf utilisait Math.min.apply(null, tableau), ce qui
+     depasse la limite d'arguments du moteur JS sur les gros fichiers. */
+  const entete = 'Level,Date and Time,Source,Event ID,Task Category,User,Computer,Keywords,Message';
+  const lignes = [entete];
+  for (let i = 0; i < 200000; i++) {
+    lignes.push('Information,06/10/2025 08:05:10,S,4625,T,u' + (i % 50) + ',PC,K,' +
+      '"Account Name: u' + (i % 50) + ' Source Network Address: 192.168.10.' + (i % 250 + 1) + '"');
+  }
+  const r = m.analyseCsvText(lignes.join('\n'));
+  assert.ok(!r.error, r.error);
+  assert.strictEqual(r.events.length, 200000);
+  const t = m.runTriage(r.events, {});
+  assert.ok(t.score >= 0 && t.score <= 100, 'score : ' + t.score);
+  assert.ok(t.findings.length > 0, 'des constats etaient attendus');
+});
+
+test('timeRangeOf fonctionne sur 200 000 dates', () => {
+  const evts = [];
+  for (let i = 0; i < 200000; i++) evts.push({ date: new Date(2025, 9, 6, 8, 0, i % 60), index: i });
+  const plage = m.timeRangeOf(evts);
+  assert.ok(plage && plage.from && plage.to, 'plage nulle');
+  assert.ok(plage.to >= plage.from);
+});
+
+test('entrees non tableaux ne plantent pas', () => {
+  for (const v of [null, undefined, 0, 'texte', {}, []]) {
+    const t = m.runTriage(v, {});
+    assert.strictEqual(t.score, 0);
+    assert.deepStrictEqual(t.findings, []);
+  }
+});
+
 console.log('\n---------------------------------------------');
 console.log('  Tests reussis : ' + passed);
 console.log('  Tests echoues : ' + failed);

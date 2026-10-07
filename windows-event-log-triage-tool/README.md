@@ -295,7 +295,7 @@ cd windows-event-log-triage-tool
 node tests/tests.js
 ```
 
-41 tests couvrent : variantes de colonnes, séparateurs, CSV mal formé, absence de
+44 tests couvrent : variantes de colonnes, séparateurs, CSV mal formé, absence de
 colonne, protection contre l'injection HTML, formats d'horodatage, extraction du
 contexte (français et anglais), groupes privilégiés, détection PowerShell encodée,
 les 5 règles de corrélation, les seuils configurables et la cohérence du score.

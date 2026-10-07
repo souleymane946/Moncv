@@ -479,10 +479,19 @@ function groupBy(events, keyFn) {
 }
 
 function timeRangeOf(events) {
-  const dates = events.map(e => e.date).filter(Boolean);
-  if (!dates.length) return null;
-  return { from: new Date(Math.min.apply(null, dates.map(d => d.getTime()))),
-           to: new Date(Math.max.apply(null, dates.map(d => d.getTime()))) };
+  /* Boucle explicite plutot que Math.min.apply(null, tableau) :
+     avec des dizaines de milliers d'evenements, "apply" depasse la limite
+     d'arguments et provoque un RangeError. */
+  let min = null;
+  let max = null;
+  for (const e of events) {
+    if (!e || !e.date) continue;
+    const t = e.date.getTime();
+    if (min === null || t < min) min = t;
+    if (max === null || t > max) max = t;
+  }
+  if (min === null) return null;
+  return { from: new Date(min), to: new Date(max) };
 }
 
 function baseFinding(props) {
@@ -896,26 +905,30 @@ function buildStats(events, findings) {
 }
 
 function runTriage(events, thresholds) {
+  const liste = Array.isArray(events) ? events : [];
   const th = sanitizeThresholds(thresholds);
   const findings = [];
-  findings.push.apply(findings, ruleRepeatedFailures(events, th));
-  findings.push.apply(findings, ruleFailuresThenSuccess(events, th));
-  findings.push.apply(findings, ruleCreatedThenPrivileged(events));
-  findings.push.apply(findings, ruleLogCleared(events));
-  findings.push.apply(findings, ruleEventLevel(events));
+  const ajouter = (listeConstats) => {
+    for (const f of (Array.isArray(listeConstats) ? listeConstats : [])) findings.push(f);
+  };
+  ajouter(ruleRepeatedFailures(liste, th));
+  ajouter(ruleFailuresThenSuccess(liste, th));
+  ajouter(ruleCreatedThenPrivileged(liste));
+  ajouter(ruleLogCleared(liste));
+  ajouter(ruleEventLevel(liste));
 
   const order = { eleve: 0, moyen: 1, faible: 2, info: 3 };
   findings.sort((a, b) => (order[a.severity] - order[b.severity]) || (b.points - a.points));
 
   const score = computeScore(findings);
   return {
-    events: events,
+    events: liste,
     findings: findings,
     score: score,
     level: scoreLevel(score),
     thresholds: th,
-    stats: buildStats(events, findings),
-    adminActivity: adminActivityOf(events)
+    stats: buildStats(liste, findings),
+    adminActivity: adminActivityOf(liste)
   };
 }
 
@@ -1917,7 +1930,7 @@ if (typeof module !== 'undefined' && module.exports) {
     EVENT_IDS, EVENT_ID_REFERENCE, DEFAULT_THRESHOLDS, SAMPLES,
     parseCsv, detectDelimiter, mapColumns, missingColumns, buildEvents, analyseCsvText,
     parseTimestamp, extractAccount, extractIp, extractGroup, isPrivilegedGroup,
-    powershellSuspicion, runTriage, computeScore, scoreLevel, sanitizeThresholds,
+    powershellSuspicion, runTriage, computeScore, scoreLevel, sanitizeThresholds, timeRangeOf,
     ruleRepeatedFailures, ruleFailuresThenSuccess, ruleCreatedThenPrivileged, ruleLogCleared
   };
 }

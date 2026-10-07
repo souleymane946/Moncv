@@ -170,7 +170,7 @@ cd phishing-email-analyser
 node tests/tests.js
 ```
 
-29 tests couvrent : la classification des 6 exemples, l'absence de fausses
+43 tests couvrent : la classification des 6 exemples, l'absence de fausses
 alertes sur l'e-mail légitime, les entrées vides ou malformées, la protection
 contre l'injection HTML, l'analyse des liens, des pièces jointes, des en-têtes
 SPF/DKIM/DMARC, des domaines sosies, les options de l'interface et la cohérence

@@ -71,16 +71,21 @@ Cloudflare Pages ou tout autre hébergeur de fichiers statiques. C'est gratuit.
 
 | Vérification | Résultat |
 |---|---|
-| Tests unitaires (3 suites) | **98 tests, 0 échec** |
-| Test de fumée « faux navigateur » | les 3 outils s'exécutent sans erreur |
+| Tests unitaires (3 suites) | **115 tests, 0 échec** |
+| Tests adversariaux (fuzzing) | **116 vérifications, 0 problème** |
+| Test de fumée « faux navigateur » | les 3 outils s'exécutent et remplissent toute l'interface |
 | Ressources externes chargées | **0** (aucun CDN, aucune police distante) |
 | Utilisation de `innerHTML` | **0** (protection contre l'injection) |
-| Requêtes réseau émises | **0** |
+| Requêtes réseau / stockage / cookies | **0** |
+| Tenue de charge | 50 000 paquets en ~0,3 s ; 200 000 événements en ~1,5 s |
 
 ```bash
 node tools/dom-smoke-test.js      # les 3 outils s'executent-ils vraiment ?
+node tools/fuzz-test.js           # resistance aux entrees hostiles et performance
 node tools/build-standalone.js    # regenerer les versions fichier unique
 ```
+
+Les bugs trouvés puis corrigés sont détaillés dans **[VERIFICATION.md](VERIFICATION.md)**.
 
 > Le test de fumée simule un navigateur (document, éléments, URL, Blob, FileReader),
 > lance l'initialisation de chaque outil et charge tous les exemples.

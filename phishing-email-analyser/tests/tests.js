@@ -167,6 +167,92 @@ test('chaque alerte explique pourquoi (champs non vides)', () => {
   }
 });
 
+console.log('\n== 11. Analyse fine des liens (regles individuelles) ==');
+
+/* Note : les chaines ci-dessous sont SYNTHETIQUES. Elles servent uniquement a
+   verifier le moteur. Les e-mails de demonstration, eux, n'utilisent que des
+   domaines en .test (jamais de TLD reel). */
+test('extension de domaine peu fiable detectee', () => {
+  const issues = m.analyseLink('https://verification-compte-exemple.click/connexion').issues;
+  assert.ok(issues.some(i => i.indexOf('Extension de domaine') !== -1), issues.join(' | '));
+});
+test('nom de domaine punycode detecte', () => {
+  const issues = m.analyseLink('https://xn--exemple-verif-9ta.test/login').issues;
+  assert.ok(issues.some(i => i.indexOf('punycode') !== -1), issues.join(' | '));
+});
+test('arobase trompeur dans le lien detecte', () => {
+  const issues = m.analyseLink('https://www.exemple.test@198.51.100.9/login').issues;
+  assert.ok(issues.some(i => i.indexOf('@') !== -1), issues.join(' | '));
+});
+test('nombreux sous-niveaux detecte', () => {
+  const issues = m.analyseLink('https://a.b.c.d.exemple.test/x').issues;
+  assert.ok(issues.some(i => i.indexOf('sous-niveaux') !== -1), issues.join(' | '));
+});
+test('mots-cles de paiement dans le chemin detectes', () => {
+  const issues = m.analyseLink('https://www.exemple.test/payment/update').issues;
+  assert.ok(issues.some(i => i.indexOf('mots-cl') !== -1), issues.join(' | '));
+});
+test('lien simple en https ne declenche rien', () => {
+  const issues = m.analyseLink('https://www.groupe-exemple.test/catalogue').issues;
+  assert.strictEqual(issues.length, 0, issues.join(' | '));
+});
+
+console.log('\n== 12. Non-regression : performance sur entrees extremes ==');
+function ms(fn) { const t = process.hrtime.bigint(); fn(); return Number(process.hrtime.bigint() - t) / 1e6; }
+
+test('en-tete de 100 000 caracteres analysee en moins de 300 ms', () => {
+  const texte = 'From: ' + 'x'.repeat(100000) + '\nSubject: test\n\nBonjour';
+  const d = ms(() => m.runAnalysis(texte, {}));
+  assert.ok(d < 300, 'analyse trop lente : ' + d.toFixed(0) + ' ms');
+});
+test('texte de 1 Mo analyse en moins de 3 000 ms', () => {
+  const d = ms(() => m.runAnalysis('urgent '.repeat(140000), {}));
+  assert.ok(d < 3000, 'analyse trop lente : ' + d.toFixed(0) + ' ms');
+});
+test('adresse e-mail sans arobase => domaine vide, sans ralentissement', () => {
+  const d = ms(() => {
+    const c = m.buildContext('From: ' + 'a'.repeat(200000) + '\n\ncorps');
+    assert.strictEqual(c.fromDomain, '');
+  });
+  assert.ok(d < 300, 'trop lent : ' + d.toFixed(0) + ' ms');
+});
+test('NON-REGRESSION : beaucoup de balises <a non fermees ne gelent pas la page', () => {
+  /* Bug corrige : une regex <a[^>]*href... etait quadratique et bloquait
+     le navigateur plus de 30 secondes sur ce type de texte. */
+  const texte = '<a href="'.repeat(20000);
+  const d = ms(() => m.extractLinks(texte));
+  assert.ok(d < 500, 'gel detecte : ' + d.toFixed(0) + ' ms pour ' + texte.length + ' caracteres');
+});
+test('NON-REGRESSION : un meme lien n est compte qu une seule fois', () => {
+  /* Bug corrige : le lien etait pousse une fois avec son texte affiche,
+     puis une seconde fois par le passage "liens en clair". */
+  const cas = [
+    'Voir <a href="https://a.test/p">le site</a> ici.',
+    'Voir [le site](https://a.test/p) ici.',
+    'Voir https://a.test/p ici.'
+  ];
+  for (const c of cas) {
+    const liens = m.extractLinks(c);
+    assert.strictEqual(liens.length, 1, 'liens trouves : ' + liens.length + ' -> ' + JSON.stringify(liens));
+  }
+});
+test('le texte affiche du lien est conserve apres dedoublonnage', () => {
+  const liens = m.extractLinks('Voir [le site officiel](https://a.test/p) ici.');
+  assert.strictEqual(liens[0].text, 'le site officiel');
+});
+test('plusieurs liens differents restent tous listes', () => {
+  const liens = m.extractLinks('https://a.test/1 https://b.test/2 https://c.test/3');
+  assert.strictEqual(liens.length, 3);
+});
+test('score toujours entre 0 et 100 sur des entrees absurdes', () => {
+  const entrees = ['', ' ', '\u0000', 'a'.repeat(50000), '"'.repeat(5000), '😀'.repeat(2000),
+    'mot de passe '.repeat(3000), 'http://'.repeat(2000)];
+  for (const e of entrees) {
+    const r = m.runAnalysis(e, {});
+    assert.ok(r.score >= 0 && r.score <= 100 && !isNaN(r.score), 'score invalide : ' + r.score);
+  }
+});
+
 console.log('\n---------------------------------------------');
 console.log('  Tests reussis : ' + passed);
 console.log('  Tests echoues : ' + failed);

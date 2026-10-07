@@ -94,6 +94,20 @@ const TOOLS = [
   { dir: 'windows-event-log-triage-tool', kind: 'windows' }
 ];
 
+/* Elements qui DOIVENT avoir recu du contenu apres l'analyse.
+   Cela permet de detecter un element de l'interface jamais rempli
+   (bug trouve lors de l'audit : "Colonnes reconnues" restait vide). */
+const DOIT_ETRE_REMPLI = {
+  phishing: ['sample-grid', 'char-count', 'score-value', 'classification-label',
+    'recommendations', 'indicators', 'stat-links', 'stat-indicators'],
+  network: ['sample-grid', 'st-file', 'st-packets', 'st-cols', 'st-parse',
+    'kpi-grid', 'top-sources', 'top-dest', 'proto-list', 'invest-score',
+    'invest-level', 'summary-list', 'alerts'],
+  windows: ['sample-grid', 'st-file', 'st-events', 'st-time', 'st-parse',
+    'kpi-grid', 'top-accounts', 'top-failed', 'top-eventids', 'timeline',
+    'eventid-reference', 'invest-score', 'invest-level', 'summary-list', 'alerts']
+};
+
 const EXTRA_EXPORTS = {
   phishing: '\nmodule.exports.__ui = { init, renderResults, renderSampleCards };\n',
   network: '\nmodule.exports.__ui = { init, processCsv, renderSampleCards };\n',
@@ -125,6 +139,17 @@ function run(kind, dir, label) {
   }
   console.log('  rendu des ' + samples.length + ' exemples ...................... OK');
   console.log('  elements DOM manipules : ' + doc._cache.size);
+
+  /* Verification : chaque zone de l'interface a-t-elle bien ete remplie ? */
+  const vides = [];
+  for (const id of (DOIT_ETRE_REMPLI[kind] || [])) {
+    const e = doc._cache.get(id);
+    if (!e) { vides.push(id + ' (jamais demande)'); continue; }
+    const rempli = (String(e.textContent || '').trim() !== '') || (e.children && e.children.length > 0);
+    if (!rempli) vides.push(id + ' (vide)');
+  }
+  if (vides.length) throw new Error('zones de l\'interface non remplies : ' + vides.join(', '));
+  console.log('  zones de l\'interface remplies ................ OK');
 
   /* Verification supplementaire : les seuils et le score restent coherents. */
   if (kind === 'phishing') {

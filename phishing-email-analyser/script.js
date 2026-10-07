@@ -87,29 +87,57 @@ function matchAll(text, patterns, limit) {
    --------------------------------------------------------------------------- */
 const URL_RE = /\bhttps?:\/\/[^\s<>"'\)\]]+/gi;
 
-function extractLinks(text) {
+function extractLinks(texte) {
+  const text = String(texte == null ? '' : texte);
   const links = [];
-  const seen = new Set();
+  const index = new Map();   /* url -> position dans links */
+
+  /* Un meme lien peut apparaitre sous plusieurs formes :
+     [texte](url), <a href="url">texte</a> et url en clair.
+     On ne le garde qu'UNE fois, mais on conserve le texte affiche s'il existe. */
   const push = (url, displayText) => {
-    const clean = url.replace(/[.,;:]+$/, '');
-    const key = clean + '|' + (displayText || '');
-    if (seen.has(key)) return;
-    seen.add(key);
-    links.push({ url: clean, text: displayText || '' });
+    const clean = String(url || '').replace(/[.,;:]+$/, '').trim();
+    if (!clean) return;
+    const texteAffiche = String(displayText || '').trim();
+    if (index.has(clean)) {
+      const dejaLa = links[index.get(clean)];
+      if (!dejaLa.text && texteAffiche) dejaLa.text = texteAffiche;
+      return;
+    }
+    index.set(clean, links.length);
+    links.push({ url: clean, text: texteAffiche });
   };
 
-  // 1) Markdown : [texte](url)
-  const mdRe = /\[([^\]]{1,200})\]\(\s*(https?:\/\/[^\s)]+)\s*\)/gi;
+  /* 1) Markdown : [texte](url) */
+  const mdRe = /\[([^\]]{1,200})\]\(\s*(https?:\/\/[^\s)]{1,2000})\s*\)/gi;
   let m;
   while ((m = mdRe.exec(text)) !== null) push(m[2], m[1]);
 
-  // 2) HTML : <a href="url">texte</a>
-  const aRe = /<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]{0,200}?)<\/a>/gi;
-  while ((m = aRe.exec(text)) !== null) {
-    push(m[1], m[2].replace(/<[^>]*>/g, '').trim());
+  /* 2) HTML : <a href="url">texte</a>
+     Parcours lineaire avec indexOf, et non une expression reguliere.
+     Une regex du type <a[^>]*href... est quadratique : sur un texte contenant
+     beaucoup de "<a" sans chevron fermant, elle faisait geler la page plus de
+     30 secondes. Ce parcours reste proportionnel a la taille du texte. */
+  const minuscules = text.toLowerCase();
+  let i = 0;
+  let securite = 0;
+  while (securite++ < 20000) {
+    const debut = minuscules.indexOf('<a', i);
+    if (debut === -1) break;
+    const finBalise = text.indexOf('>', debut);
+    if (finBalise === -1) break;
+    const balise = text.slice(debut, finBalise + 1);
+    const href = /href\s*=\s*["']([^"']{1,2000})["']/i.exec(balise);
+    const finLien = minuscules.indexOf('</a>', finBalise);
+    if (href) {
+      const label = finLien === -1 ? '' : text.slice(finBalise + 1, finLien).replace(/<[^>]*>/g, '').trim();
+      push(href[1], label);
+    }
+    i = finLien === -1 ? finBalise + 1 : finLien + 4;
   }
 
-  // 3) Liens en clair
+  /* 3) Liens en clair */
+  URL_RE.lastIndex = 0;
   while ((m = URL_RE.exec(text)) !== null) push(m[0], '');
 
   return links;
@@ -130,9 +158,14 @@ function isIpHost(host) {
   return /^\d{1,3}(\.\d{1,3}){3}$/.test(host);
 }
 
+/* Raccourcisseurs reconnus. Les deux derniers sont FICTIFS et en .test :
+   ils servent uniquement aux e-mails de demonstration, pour ne jamais citer
+   un service reel dans les exemples. Les vrais raccourcisseurs restent
+   bien sur detectes dans les messages analyses par l'utilisateur. */
 const SHORTENERS = ['bit.ly','tinyurl.com','t.co','goo.gl','ow.ly','is.gd','buff.ly',
   'cutt.ly','rb.gy','shorturl.at','rebrand.ly','tiny.cc','lnkd.in','surl.li','shorte.st',
-  'adf.ly','bl.ink','clck.ru','v.gd','qr.ae','u.to','x.co','mcaf.ee','po.st','trib.al'];
+  'adf.ly','bl.ink','clck.ru','v.gd','qr.ae','u.to','x.co','mcaf.ee','po.st','trib.al',
+  'lien-court.test','raccourci.test'];
 
 const RISKY_TLDS = ['zip','mov','xyz','top','club','work','click','link','country','gq','tk',
   'ml','cf','ga','rest','cam','surf','bar','quest','monster','cyou','buzz','icu','lol','fit',
@@ -273,9 +306,25 @@ function parseHeaders(text) {
 }
 
 function emailDomain(value) {
-  if (!value) return '';
-  const m = /[<(\s]?([A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,}))/.exec(value);
-  return m ? m[2].toLowerCase() : '';
+  /* Analyse MANUELLE volontaire (pas de regex).
+     Une expression reguliere du type [A-Za-z0-9._%+-]+@... sur une tres longue
+     ligne sans arobase provoque un ralentissement en O(n^2) : sur une en-tete
+     de 100 000 caracteres, l'analyse passait de quelques millisecondes a
+     plusieurs secondes. Ce parcours lineaire elimine le probleme. */
+  const s = String(value || '');
+  const at = s.indexOf('@');
+  if (at === -1) return '';
+  let i = at + 1;
+  let out = '';
+  while (i < s.length) {
+    const c = s.charCodeAt(i);
+    const estLettre = (c >= 97 && c <= 122) || (c >= 65 && c <= 90);
+    const estChiffre = c >= 48 && c <= 57;
+    if (estLettre || estChiffre || c === 45 || c === 46) { out += s[i]; i++; continue; }
+    break;
+  }
+  out = out.toLowerCase().replace(/^[.-]+/, '').replace(/[.-]+$/, '');
+  return /\.[a-z]{2,}$/.test(out) ? out : '';
 }
 
 function baseDomain(host) {
@@ -791,7 +840,7 @@ const SAMPLES = [
   {
     id: 'sophisticated', name: '2. Phishing sophistique', tag: 'Risque eleve',
     desc: "Message soigne, peu d'urgence, mais piece jointe a macros, texte de lien trompeur et echec DKIM.",
-    text: `From: "Comptabilite - Groupe Exemple" <comptabilite@groupe-exemple.test>\nReply-To: facturation@groupe-exemple-portail.test\nSubject: Votre releve trimestriel est disponible\nAuthentication-Results: mx.exemple-destinataire.test; spf=pass; dkim=fail; dmarc=pass\n\nBonjour,\n\nVotre releve trimestriel est pret. Vous pouvez le consulter depuis votre espace client :\n[www.groupe-exemple.test](https://portail-securise-exemple.click/espace-client)\n\nLe detail complet se trouve dans la piece jointe : Releve_Q3_2024.docm\n\nSi le document ne s'affiche pas correctement, cliquez sur \"Activer le contenu\"\nlorsque la mise en garde de securite apparait.\n\nBonne journee,\nLe service comptabilite`
+    text: `From: "Comptabilite - Groupe Exemple" <comptabilite@groupe-exemple.test>\nReply-To: facturation@groupe-exemple-portail.test\nSubject: Votre releve trimestriel est disponible\nAuthentication-Results: mx.exemple-destinataire.test; spf=pass; dkim=fail; dmarc=pass\n\nBonjour,\n\nVotre releve trimestriel est pret. Vous pouvez le consulter depuis votre espace client :\n[www.groupe-exemple.test](https://portail-securise-exemple.test/account/verify)\n\nLe detail complet se trouve dans la piece jointe : Releve_Q3_2024.docm\n\nSi le document ne s'affiche pas correctement, cliquez sur \"Activer le contenu\"\nlorsque la mise en garde de securite apparait.\n\nBonne journee,\nLe service comptabilite`
   },
   {
     id: 'm365', name: '3. Faux avertissement Microsoft 365', tag: 'Risque eleve',
@@ -801,7 +850,7 @@ const SAMPLES = [
   {
     id: 'parcel', name: '4. Faux message de livraison de colis', tag: 'Suspect',
     desc: "Faux avis de passage avec frais de douane et lien raccourci.",
-    text: `From: "Livraison Express" <avis@livraison-express-notification.test>\nSubject: Votre colis est en attente - frais de douane a regler\n\nBonjour,\n\nVotre colis (reference FR-88213094) est bloque a notre centre de tri.\nDes frais de douane de 2,99 EUR doivent etre regles sous 48 heures.\n\nPour payer et planifier la livraison, suivez ce lien :\nhttps://bit.ly/3xColis\n\nSans reglement, le colis sera retourne a l'expediteur et des frais de dossier\nsupplementaires pourront s'appliquer.\n\nService client Livraison Express`
+    text: `From: "Livraison Express" <avis@livraison-express-notification.test>\nSubject: Votre colis est en attente - frais de douane a regler\n\nBonjour,\n\nVotre colis (reference FR-88213094) est bloque a notre centre de tri.\nDes frais de douane de 2,99 EUR doivent etre regles sous 48 heures.\n\nPour payer et planifier la livraison, suivez ce lien :\nhttps://raccourci.test/3xColis\n\nSans reglement, le colis sera retourne a l'expediteur et des frais de dossier\nsupplementaires pourront s'appliquer.\n\nService client Livraison Express`
   },
   {
     id: 'bec', name: '5. Fausse facture / fraude au president (BEC)', tag: 'Risque eleve',

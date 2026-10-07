@@ -1286,8 +1286,9 @@ function sanitizeThresholds(input) {
 }
 
 function runTriage(packets, thresholds) {
+  const liste = Array.isArray(packets) ? packets : [];
   const th = sanitizeThresholds(thresholds);
-  const agg = aggregate(packets);
+  const agg = aggregate(liste);
   const alerts = [];
   for (const rule of RULES) {
     let res = null;
@@ -1550,6 +1551,7 @@ function processCsv(text, fileName) {
   const res = analyseCsvText(text);
 
   if (res.error) {
+    byId('st-cols').textContent = '\u2014';
     renderLoadStatus(fileName, 0, 'Echec');
     addMessage('err', res.error);
     if (res.headers && res.headers.length) {
@@ -1561,6 +1563,9 @@ function processCsv(text, fileName) {
   }
 
   currentPackets = res.packets;
+  const attendues = ['no', 'time', 'source', 'destination', 'protocol', 'length', 'info'];
+  const reconnues = attendues.filter(k => res.map[k] !== undefined).length;
+  byId('st-cols').textContent = reconnues + ' / ' + attendues.length;
   renderLoadStatus(fileName, res.packets.length, 'Reussie');
   addMessage('ok', 'Analyse du fichier reussie : ' + res.packets.length + ' paquets lus.');
 
