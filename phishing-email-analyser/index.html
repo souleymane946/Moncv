@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phishing Email Analyser — Analyse locale d'e-mails suspects</title>
+<meta name="description" content="Outil pédagogique d'analyse d'e-mails de phishing. Analyse 100% locale dans le navigateur, aucune donnée envoyée.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Aller au contenu principal</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3l7 3v6c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6l7-3z"/>
+          <path d="M9.5 12.2l1.8 1.8 3.4-3.6"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>Phishing Email Analyser</strong>
+        <small>Triage pédagogique d'e-mails suspects</small>
+      </span>
+    </div>
+    <nav class="site-nav" aria-label="Navigation principale">
+      <a href="#analyser">Analyser</a>
+      <a href="#samples">Exemples</a>
+      <a href="#methode">Méthode</a>
+      <a href="../index.html">Autres outils</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="privacy-banner" aria-label="Avis de confidentialité">
+    <div class="wrap">
+      <p>
+        <span class="pill pill-ok">Analyse locale</span>
+        <strong>Confidentialité :</strong> votre e-mail est analysé <em>uniquement dans votre navigateur</em>.
+        Aucun contenu n'est envoyé vers un serveur, une IA, un service d'analyse ou une API externe.
+        Aucun cookie, aucun suivi, aucune télémétrie.
+      </p>
+    </div>
+  </section>
+
+  <section id="analyser" class="section">
+    <div class="wrap">
+      <div class="hero">
+        <h1>Un e-mail suspect ? Analysez-le avant de cliquer.</h1>
+        <p class="lead">
+          Collez le contenu complet de l'e-mail (texte, liens, et si possible les en-têtes).
+          L'outil recherche les signes classiques d'hameçonnage et d'ingénierie sociale,
+          puis explique <strong>chaque</strong> point qui a contribué au résultat.
+        </p>
+      </div>
+
+      <div class="warn-box" role="note">
+        <h2 class="warn-title">À lire avant d'utiliser l'outil</h2>
+        <ul>
+          <li>Cet outil est un <strong>outil pédagogique de triage</strong> : il aide à repérer des <em>signes d'alerte</em>, il ne prouve jamais qu'un e-mail est malveillant.</li>
+          <li><strong>Ne cliquez jamais</strong> sur un lien suspect et <strong>n'ouvrez jamais</strong> une pièce jointe simplement « pour tester ».</li>
+          <li>Pour tout message important, vérifiez <strong>indépendamment</strong> : site officiel de l'organisation, application officielle, ou numéro connu et fiable.</li>
+        </ul>
+      </div>
+
+      <form id="analyse-form" class="panel" novalidate>
+        <div class="field">
+          <label for="email-input">Contenu de l'e-mail à analyser</label>
+          <p class="hint" id="email-hint">
+            Collez ici le texte de l'e-mail. Astuce : vous pouvez aussi coller la partie « en-têtes »
+            (les lignes commençant par <code>From:</code>, <code>Reply-To:</code>, <code>Authentication-Results:</code>…).
+            Les en-têtes sont optionnels mais améliorent la détection.
+          </p>
+          <textarea id="email-input" name="email" rows="14" spellcheck="false"
+            aria-describedby="email-hint"
+            placeholder="Exemple :&#10;De : support@exemple-securite.test&#10;Objet : URGENT - Votre compte sera suspendu&#10;&#10;Cher client, ..."></textarea>
+          <div class="textarea-meta">
+            <span id="char-count">0 caractère</span>
+            <button type="button" class="link-btn" id="btn-clear">Effacer</button>
+          </div>
+        </div>
+
+        <details class="advanced">
+          <summary>Options avancées (facultatif)</summary>
+          <div class="advanced-body">
+            <label class="check">
+              <input type="checkbox" id="opt-headers" checked>
+              <span>Analyser les en-têtes d'authentification (SPF / DKIM / DMARC) si présents</span>
+            </label>
+            <label class="check">
+              <input type="checkbox" id="opt-links" checked>
+              <span>Analyser les liens et détecter les textes de lien trompeurs</span>
+            </label>
+            <label class="check">
+              <input type="checkbox" id="opt-attachments" checked>
+              <span>Analyser les noms de pièces jointes mentionnés</span>
+            </label>
+            <label class="check">
+              <input type="checkbox" id="opt-sensitive" checked>
+              <span>Afficher aussi les indices faibles (recommandé pour apprendre)</span>
+            </label>
+          </div>
+        </details>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary" id="btn-analyse">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            </span>
+            Analyser l'e-mail
+          </button>
+          <button type="reset" class="btn btn-ghost" id="btn-reset">Réinitialiser</button>
+        </div>
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+      </form>
+    </div>
+  </section>
+
+
+  <section id="results" class="section" hidden aria-live="polite">
+    <div class="wrap">
+      <h2 class="section-title">Rapport d'analyse</h2>
+
+      <div class="score-grid">
+        <div class="card score-card">
+          <div class="gauge-wrap">
+            <svg class="gauge" viewBox="0 0 200 120" role="img" aria-labelledby="gauge-title">
+              <title id="gauge-title">Score de risque de phishing</title>
+              <path class="gauge-track" d="M20 110 A80 80 0 0 1 180 110" />
+              <path class="gauge-fill" id="gauge-fill" d="M20 110 A80 80 0 0 1 180 110" />
+            </svg>
+            <div class="gauge-center">
+              <span class="gauge-value" id="score-value">0</span>
+              <span class="gauge-max">/ 100</span>
+            </div>
+          </div>
+          <p class="score-caption">Score de risque de phishing</p>
+          <div class="classif" id="classification">
+            <span class="classif-dot" aria-hidden="true"></span>
+            <span class="classif-label" id="classification-label">—</span>
+          </div>
+          <p class="score-note" id="score-note"></p>
+        </div>
+
+        <div class="card stats-card">
+          <h3 class="card-title">Synthèse</h3>
+          <ul class="stat-list">
+            <li><span class="stat-label">Signes d'alerte détectés</span><span class="stat-val" id="stat-indicators">0</span></li>
+            <li><span class="stat-label">Liens trouvés</span><span class="stat-val" id="stat-links">0</span></li>
+            <li><span class="stat-label">Liens suspects</span><span class="stat-val" id="stat-links-bad">0</span></li>
+            <li><span class="stat-label">Pièces jointes citées</span><span class="stat-val" id="stat-attach">0</span></li>
+            <li><span class="stat-label">En-têtes d'authentification lus</span><span class="stat-val" id="stat-auth">0</span></li>
+            <li><span class="stat-label">Longueur du message</span><span class="stat-val" id="stat-length">0</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card rec-card">
+        <h3 class="card-title">
+          <span class="title-ico" aria-hidden="true">✔</span>
+          Recommandations
+        </h3>
+        <ul class="rec-list" id="recommendations"></ul>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">
+          <span class="title-ico" aria-hidden="true">!</span>
+          Détail des signes d'alerte
+        </h3>
+        <p class="muted">Chaque carte explique <strong>ce qui a été trouvé</strong>, <strong>pourquoi cela compte</strong> et <strong>ce que cela peut être d'autre</strong>.</p>
+        <div class="indicators" id="indicators"></div>
+        <p class="empty-note" id="no-indicators" hidden>
+          Aucun signe d'alerte fort détecté. Cela ne garantit pas qu'un e-mail est sûr :
+          restez prudent, surtout si le message est inattendu ou demande une action urgente.
+        </p>
+      </div>
+
+      <div class="card" id="links-card" hidden>
+        <h3 class="card-title">
+          <span class="title-ico" aria-hidden="true">&#128279;</span>
+          Liens extraits
+        </h3>
+        <p class="muted">Les liens sont affichés en texte brut et <strong>ne sont jamais cliquables</strong> dans cet outil.</p>
+        <div class="table-scroll">
+          <table class="data-table">
+            <caption class="visually-hidden">Liste des liens détectés dans le message</caption>
+            <thead>
+              <tr><th scope="col">Lien</th><th scope="col">Texte affiché</th><th scope="col">Analyse</th></tr>
+            </thead>
+            <tbody id="links-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" id="headers-card" hidden>
+        <h3 class="card-title">
+          <span class="title-ico" aria-hidden="true">&#9993;</span>
+          En-têtes et authentification
+        </h3>
+        <div class="table-scroll">
+          <table class="data-table">
+            <caption class="visually-hidden">Résultat de l'analyse des en-têtes</caption>
+            <thead><tr><th scope="col">Élément</th><th scope="col">Valeur observée</th><th scope="col">Interprétation</th></tr></thead>
+            <tbody id="headers-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section id="samples" class="section section-alt">
+    <div class="wrap">
+      <h2 class="section-title">Exemples de démonstration</h2>
+      <p class="lead">
+        Ces messages sont <strong>entièrement fictifs</strong>. Ils n'utilisent ni domaine réel
+        d'attaque, ni lien malveillant fonctionnel. Ils servent à comprendre les schémas typiques.
+      </p>
+      <div class="sample-grid" id="sample-grid"></div>
+    </div>
+  </section>
+
+  <section id="methode" class="section">
+    <div class="wrap">
+      <h2 class="section-title">Comment lire ce rapport (méthode de triage)</h2>
+      <div class="method-grid">
+        <div class="card">
+          <h3 class="card-title">1. Le score n'est pas une preuve</h3>
+          <p>Le score additionne des <strong>signes d'alerte pondérés</strong>. C'est une aide à la décision,
+          pas une vérité. Un score élevé signifie « à vérifier par un autre moyen », jamais « attaque confirmée ».</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">2. Le contexte compte plus que le score</h3>
+          <p>Un e-mail attendu (facture d'un fournisseur connu, message d'un collègue) et un e-mail surprise
+          n'ont pas la même valeur. Demandez-vous : <em>est-ce que j'attendais ce message ?</em></p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">3. Vérifier par un canal indépendant</h3>
+          <p>N'utilisez jamais les coordonnées fournies <em>dans</em> l'e-mail suspect. Reprenez le contact via
+          le site officiel, l'application officielle ou un numéro que vous connaissez déjà.</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">4. L'urgence est un levier d'attaque</h3>
+          <p>« Immédiatement », « sous 24 h », « dernière mise en garde »… Les attaquants créent la panique
+          pour court-circuiter la réflexion. Ralentir, c'est déjà se défendre.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Phrase à retenir :</strong> un signe d'alerte est un <em>point de départ pour vérifier</em>,
+        pas une <em>preuve de compromission</em>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="wrap">
+      <div class="disclaimer">
+        <h2 class="section-title">Avertissement</h2>
+        <p><strong>Outil pédagogique d'évaluation préliminaire (triage).</strong> Il identifie des signes d'alerte
+        courants dans le texte d'un e-mail et ne peut pas déterminer avec certitude qu'un message est malveillant.</p>
+        <p>Ne cliquez pas sur les liens et n'ouvrez pas les pièces jointes d'un message suspect pour « voir ».
+        Analysez uniquement des messages que vous êtes autorisé à examiner.</p>
+        <p>Ce que l'outil <strong>ne fait pas</strong> : il n'exécute aucun code de pièce jointe, il ne visite aucun lien,
+        il n'envoie rien sur Internet.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p><strong>Phishing Email Analyser</strong> — outil éducatif, 100 % local, sans dépendance externe.</p>
+    <p class="muted">Aucun cookie · Aucun traceur · Aucune requête réseau émise par l'application.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
+
