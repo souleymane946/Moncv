@@ -26,6 +26,7 @@
       </span>
     </div>
     <nav class="site-nav" aria-label="Navigation principale">
+      <a href="#ouvrir">Comment ouvrir</a>
       <a href="#outils">Les outils</a>
       <a href="#principes">Principes</a>
       <a href="#limites">Limites</a>
@@ -69,7 +70,43 @@
     </div>
   </section>
 
+  <section class="section section-alt" id="ouvrir">
+    <div class="wrap">
+      <h2 class="section-title">Comment ouvrir ces outils (Windows, rien à installer)</h2>
+      <div class="method-grid">
+        <div class="card">
+          <h3 class="card-title">Méthode 1 — le plus simple</h3>
+          <p><strong>Double-cliquez sur le fichier <code>DEMARRER-Windows.bat</code></strong> à la racine du dossier.
+          La page s'ouvre dans votre navigateur.</p>
+          <p class="muted">Si Windows affiche un avertissement de sécurité, cliquez sur « Informations complémentaires »
+          puis « Exécuter quand même ». Ce fichier ne fait qu'ouvrir <code>index.html</code> : vous pouvez
+          l'ouvrir dans le Bloc-notes pour le vérifier.</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Méthode 2 — sans fichier .bat</h3>
+          <p>Ouvrez le dossier, puis <strong>double-cliquez sur <code>index.html</code></strong>.</p>
+          <p class="muted">Important : gardez toujours <code>index.html</code>, <code>styles.css</code> et <code>script.js</code>
+          <strong>ensemble dans le même dossier</strong>. Si vous déplacez seulement le fichier HTML, la page
+          s'affichera sans mise en forme.</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Méthode 3 — un seul fichier</h3>
+          <p>Le dossier <code>standalone/</code> contient les mêmes outils en <strong>fichier unique</strong> :
+          tout (HTML, CSS, JavaScript) est dans un seul <code>.html</code>.</p>
+          <p class="muted">Idéal pour l'envoyer par e-mail, le mettre sur une clé USB ou l'héberger seul.
+          Aucun risque d'oublier un fichier.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Aucun serveur n'est nécessaire.</strong> Ces pages fonctionnent directement depuis un fichier local
+        (<code>file://</code>), sans installation, sans compte et sans connexion Internet.</p>
+      </div>
+    </div>
+  </section>
+
   <section id="outils" class="section section-alt">
+
     <div class="wrap">
       <h2 class="section-title">Les trois outils</h2>
       <div class="tools-grid">

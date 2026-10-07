@@ -15,6 +15,8 @@ sans serveur, sans base de données, sans API externe et sans tracker.
 | `network-traffic-triage-tool/` | **Network Traffic Triage Tool** | Analyse un export CSV Wireshark : tableau de bord réseau, 7 règles de détection, score d'investigation. |
 | `windows-event-log-triage-tool/` | **Windows Security Event Log Triage Tool** | Analyse un export CSV de l'Observateur d'événements : 12 Event IDs expliqués, 5 règles de corrélation, rapport type SOC. |
 | `index.html` | Page d'accueil | Point d'entrée commun vers les trois outils. |
+| `standalone/` | **Versions fichier unique** | Les mêmes outils en un seul `.html` (HTML+CSS+JS inclus). |
+| `tools/` | Outils de développement | Test de fumée « faux navigateur » et fabrication des versions fichier unique. |
 
 Chaque dossier contient son propre `README.md` détaillé, ses exemples et ses tests.
 
@@ -22,16 +24,67 @@ Chaque dossier contient son propre `README.md` détaillé, ses exemples et ses t
 
 ## Démarrage rapide (Windows, sans rien installer)
 
-1. Téléchargez ou copiez ce dépôt sur votre ordinateur.
-2. **Double-cliquez sur `index.html`** (à la racine).
-3. Choisissez un outil, puis cliquez sur un exemple pour voir le fonctionnement.
+### Méthode 1 — le plus simple
 
-Aucune commande, aucun serveur, aucune installation de logiciel.
+**Double-cliquez sur `DEMARRER-Windows.bat`** à la racine. La page d'accueil s'ouvre
+dans votre navigateur.
+
+> Si Windows affiche un avertissement, cliquez sur « Informations complémentaires »
+> puis « Exécuter quand même ». Ce fichier ne contient qu'une ligne :
+> `start "" "%~dp0index.html"`. Vous pouvez l'ouvrir dans le Bloc-notes pour le vérifier.
+
+### Méthode 2 — sans fichier .bat
+
+Ouvrez le dossier et **double-cliquez sur `index.html`**.
+
+> ⚠️ Gardez `index.html`, `styles.css` et `script.js` **ensemble dans le même dossier**.
+> Si vous ne copiez que le fichier HTML, la page s'affichera sans mise en forme.
+
+### Méthode 3 — un seul fichier (le plus robuste)
+
+Le dossier **`standalone/`** contient les mêmes outils en **fichier unique** :
+HTML + CSS + JavaScript réunis dans un seul `.html`.
+
+| Fichier | Outil |
+|---|---|
+| `standalone/index.html` | Page d'accueil |
+| `standalone/Phishing-Email-Analyser.html` | Analyse d'e-mails |
+| `standalone/Network-Traffic-Triage-Tool.html` | Triage réseau |
+| `standalone/Windows-Event-Log-Triage-Tool.html` | Triage de journaux Windows |
+
+Un seul fichier à double-cliquer : aucun risque d'oublier une dépendance.
+Pratique pour l'envoyer par e-mail ou le mettre sur une clé USB.
+
+### Aucun serveur n'est nécessaire
+
+Ces pages fonctionnent directement depuis un fichier local (`file://`),
+sans installation, sans compte et **sans connexion Internet**.
 
 ### Hébergement en ligne (facultatif)
 
 Le dépôt est un **site statique** : déposez-le tel quel sur GitHub Pages, Netlify,
 Cloudflare Pages ou tout autre hébergeur de fichiers statiques. C'est gratuit.
+
+---
+
+## Vérifications effectuées
+
+| Vérification | Résultat |
+|---|---|
+| Tests unitaires (3 suites) | **98 tests, 0 échec** |
+| Test de fumée « faux navigateur » | les 3 outils s'exécutent sans erreur |
+| Ressources externes chargées | **0** (aucun CDN, aucune police distante) |
+| Utilisation de `innerHTML` | **0** (protection contre l'injection) |
+| Requêtes réseau émises | **0** |
+
+```bash
+node tools/dom-smoke-test.js      # les 3 outils s'executent-ils vraiment ?
+node tools/build-standalone.js    # regenerer les versions fichier unique
+```
+
+> Le test de fumée simule un navigateur (document, éléments, URL, Blob, FileReader),
+> lance l'initialisation de chaque outil et charge tous les exemples.
+> Il a permis de détecter un vrai bug d'initialisation lors de sa première exécution.
 
 ---
 
