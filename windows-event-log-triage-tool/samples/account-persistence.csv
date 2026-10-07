@@ -1,0 +1,35 @@
+Level,Date and Time,Source,Event ID,Task Category,User,Computer,Keywords,Message
+Information,09/10/2025 15:40:10,Microsoft-Windows-Security-Auditing,4720,User Account Management,admin.local,SRV-AD-01,Audit Success,"A user account was created.
+
+Subject:
+	Account Name:		admin.local
+New Account:
+	Account Name:		temp-admin
+Computer:	SRV-AD-01"
+Information,09/10/2025 15:41:30,Microsoft-Windows-Security-Auditing,4732,Security Group Management,admin.local,SRV-AD-01,Audit Success,"A member was added to a security-enabled local group.
+
+Subject:
+	Account Name:		admin.local
+Member:
+	Account Name:		temp-admin
+Group:
+	Group Name:		Administrators"
+Information,09/10/2025 15:50:00,Microsoft-Windows-Security-Auditing,4624,Logon,temp-admin,SRV-AD-01,Audit Success,"An account was successfully logged on.
+
+Subject:
+	Security ID:		S-1-5-18
+	Account Name:		SRV-AD-01$
+Logon Information:
+	Logon Type:		10
+New Logon:
+	Security ID:		S-1-5-21-0000
+	Account Name:		temp-admin
+Network Information:
+	Workstation Name:	SRV-AD-01
+	Source Network Address:	192.168.10.99"
+Information,09/10/2025 16:05:00,Microsoft-Windows-Security-Auditing,4688,Process Creation,temp-admin,SRV-AD-01,Audit Success,"A new process has been created.
+
+New Process Name:		C:\Windows\System32\whoami.exe
+Creator Process Name:	C:\Windows\System32\cmd.exe
+Process Command Line:	C:\Windows\System32\whoami.exe
+Account Name:		temp-admin"

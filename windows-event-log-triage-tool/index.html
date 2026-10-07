@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows Security Event Log Triage Tool — Triage de journaux Windows</title>
+<meta name="description" content="Outil educatif de triage des journaux de securite Windows. Analyse locale d'un export CSV de l'Observateur d'evenements, dans le navigateur.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Aller au contenu principal</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h7v7H4z"/><path d="M13 4h7v7h-7z"/><path d="M4 13h7v7H4z"/><path d="M13 13h7v7h-7z"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>Windows Security Event Log Triage Tool</strong>
+        <small>Outil de triage des journaux d'evenements de securite Windows</small>
+      </span>
+    </div>
+    <nav class="site-nav" aria-label="Navigation principale">
+      <a href="#charger">Charger un CSV</a>
+      <a href="#tableau-de-bord">Tableau de bord</a>
+      <a href="#resultats">Triage</a>
+      <a href="#methode">Methode</a>
+      <a href="#aide">Aide Event Viewer</a>
+      <a href="../index.html">Autres outils</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="privacy-banner" aria-label="Avis de confidentialite">
+    <div class="wrap">
+      <p>
+        <span class="pill pill-ok">Analyse locale</span>
+        <strong>Vos journaux d'evenements Windows sont analyses localement dans votre navigateur et ne sont envoyes nulle part.</strong>
+        Aucun cookie, aucun traceur, aucune publicite, aucune telemetrie, aucun appel a une API externe.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="hero">
+        <h1>Apprendre a enqueter sur des evenements de securite Windows</h1>
+        <p class="lead">
+          Exportez des evenements depuis l'Observateur d'evenements Windows, chargez le CSV ici, et obtenez un
+          rapport de triage de type SOC : quels evenements meritent une investigation, comment ils se
+          <strong>correlent</strong> entre eux, et pourquoi.
+        </p>
+      </div>
+
+      <div class="warn-box" role="note">
+        <h2 class="warn-title">Avertissement important</h2>
+        <ul>
+          <li><strong>Outil educatif de triage SOC.</strong> Les constats indiquent une activite qui merite une investigation et <strong>ne prouvent pas</strong> un comportement malveillant.</li>
+          <li><strong>Analysez uniquement des journaux provenant de systemes que vous possedez ou que vous etes autorise a investiguer.</strong></li>
+          <li>Un evenement de securite isole raconte rarement toute l'histoire : c'est la <em>correlation</em> qui construit le contexte.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="charger" class="section section-alt">
+    <div class="wrap">
+      <h2 class="section-title">1. Charger un export CSV de l'Observateur d'evenements</h2>
+
+      <div class="upload-grid">
+        <div id="dropzone" class="dropzone" tabindex="0" role="button"
+             aria-label="Deposer ou selectionner un fichier CSV d'evenements Windows">
+          <svg class="drop-ico" viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+          </svg>
+          <p class="drop-title">Glissez votre fichier CSV ici</p>
+          <p class="drop-sub">ou cliquez pour choisir un fichier sur votre ordinateur</p>
+          <p class="drop-note">Formats acceptes : .csv, .txt — le fichier reste sur votre machine.</p>
+          <input type="file" id="file-input" accept=".csv,.txt,text/csv" class="visually-hidden">
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Etat du chargement</h3>
+          <ul class="stat-list">
+            <li><span class="stat-label">Fichier</span><span class="stat-val" id="st-file">—</span></li>
+            <li><span class="stat-label">Evenements lus</span><span class="stat-val" id="st-events">0</span></li>
+            <li><span class="stat-label">Analyse du fichier</span><span class="stat-val" id="st-parse">—</span></li>
+            <li><span class="stat-label">Horodatages exploitables</span><span class="stat-val" id="st-time">—</span></li>
+          </ul>
+          <div id="parse-messages" class="msg-area" aria-live="polite"></div>
+          <div class="actions compact">
+            <button type="button" class="btn btn-ghost" id="btn-reset">Reinitialiser</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="parametres">
+    <div class="wrap">
+      <h2 class="section-title">2. Parametres de detection (modifiables)</h2>
+      <p class="lead">Les seuils de securite varient selon l'environnement. Ces valeurs sont des <strong>valeurs pedagogiques par defaut</strong>, pas des regles universelles de SOC.</p>
+      <div class="card">
+        <div class="threshold-grid">
+          <label class="th-field">
+            <span>Seuil d'echecs de connexion</span>
+            <input type="number" id="th-failed" value="5" min="1" step="1">
+          </label>
+          <label class="th-field">
+            <span>Fenetre temporelle (minutes)</span>
+            <input type="number" id="th-window" value="10" min="1" step="1">
+          </label>
+        </div>
+        <div class="actions compact">
+          <button type="button" class="btn btn-primary" id="btn-recompute">Recalculer avec ces seuils</button>
+          <button type="button" class="btn btn-ghost" id="btn-defaults">Reinitialiser les valeurs par defaut</button>
+        </div>
+        <p class="muted small" id="window-note"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="tableau-de-bord" class="section section-alt" hidden>
+    <div class="wrap">
+      <h2 class="section-title">3. Tableau de bord</h2>
+      <div class="kpi-grid" id="kpi-grid"></div>
+
+      <div class="two-col">
+        <div class="card">
+          <h3 class="card-title">Comptes les plus actifs (par nombre d'evenements)</h3>
+          <div id="top-accounts" class="bar-list"></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Comptes avec le plus d'echecs de connexion</h3>
+          <div id="top-failed" class="bar-list"></div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <h3 class="card-title">Event IDs les plus frequents</h3>
+          <div id="top-eventids" class="bar-list"></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Chronologie des evenements notables</h3>
+          <div id="timeline" class="timeline"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="resultats" class="section" hidden>
+    <div class="wrap">
+      <h2 class="section-title">4. Rapport de triage</h2>
+
+      <div class="score-grid">
+        <div class="card score-card">
+          <div class="score-head">
+            <span class="score-number" id="invest-score">0</span>
+            <div>
+              <p class="score-label">Score d'investigation</p>
+              <p class="score-level" id="invest-level">—</p>
+            </div>
+          </div>
+          <p class="score-note">
+            Ce score additionne des contributions <strong>visibles</strong>.
+            C'est un mecanisme pedagogique de priorisation, <strong>pas</strong> une probabilite mathematique de compromission.
+          </p>
+          <ul class="score-breakdown" id="score-breakdown"></ul>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Resume</h3>
+          <ul class="stat-list" id="summary-list"></ul>
+        </div>
+      </div>
+
+      <h3 class="card-title standalone">Constats</h3>
+      <div class="filters card" id="filters">
+        <h4 class="filters-title">Filtres</h4>
+        <div class="filter-grid">
+          <label class="th-field"><span>Event ID</span><select id="f-eventid"><option value="">Tous</option></select></label>
+          <label class="th-field"><span>Compte</span><select id="f-account"><option value="">Tous</option></select></label>
+          <label class="th-field"><span>Severite</span><select id="f-severity">
+            <option value="">Toutes</option>
+            <option value="eleve">Eleve</option>
+            <option value="moyen">Moyen</option>
+            <option value="faible">Faible</option>
+            <option value="info">Informationnel</option>
+          </select></label>
+          <label class="th-field"><span>Adresse IP source</span><select id="f-ip"><option value="">Toutes</option></select></label>
+          <label class="th-field"><span>Type d'evenement</span><select id="f-type">
+            <option value="">Tous</option>
+            <option value="logon">Connexions</option>
+            <option value="account">Comptes</option>
+            <option value="privilege">Privileges</option>
+            <option value="log">Journaux</option>
+            <option value="process">Processus</option>
+            <option value="service">Services</option>
+          </select></label>
+          <label class="th-field"><span>Recherche libre</span><input type="search" id="f-search" placeholder="compte, IP, mot-cle..."></label>
+        </div>
+        <div class="actions compact">
+          <button type="button" class="btn btn-ghost" id="btn-clear-filters">Effacer les filtres</button>
+        </div>
+      </div>
+
+      <div class="alerts" id="alerts"></div>
+      <p class="empty-note" id="no-alerts" hidden>Aucun constat ne correspond aux filtres actuels.</p>
+    </div>
+  </section>
+
+
+  <section class="section section-alt" id="exemples">
+    <div class="wrap">
+      <h2 class="section-title">5. Exemples de demonstration</h2>
+      <p class="lead">Journaux <strong>entierement fictifs</strong> : comptes, noms de machines et adresses IP inventes, dans des plages privees. Aucune personne ni organisation reelle.</p>
+      <div class="sample-grid" id="sample-grid"></div>
+    </div>
+  </section>
+
+  <section class="section" id="methode">
+    <div class="wrap">
+      <h2 class="section-title">6. Comment penser comme un analyste SOC</h2>
+      <ol class="steps">
+        <li><strong>Identifier l'evenement.</strong> Quel Event ID, quelle source, a quel moment ?</li>
+        <li><strong>Comprendre ce qui s'est produit.</strong> Que signifie cet identifiant en clair ?</li>
+        <li><strong>Identifier l'utilisateur ou le systeme concerne.</strong> Qui est touche ?</li>
+        <li><strong>Determiner si l'activite est attendue.</strong> Une maintenance planifiee, un deploiement, un administrateur connu ?</li>
+        <li><strong>Rechercher des evenements lies.</strong> Un evenement isole est faible ; une sequence est parlante.</li>
+        <li><strong>Correler authentification et privileges.</strong> Echecs suivis d'une reussite ? Compte cree puis ajoute a un groupe privilegie ?</li>
+        <li><strong>Recueillir davantage d'evidence.</strong> Journaux Sysmon, EDR, MFA, tickets de changement.</li>
+        <li><strong>Decider si une escalade est necessaire.</strong> Trier, c'est prioriser.</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>Message cle :</strong> « Un evenement de securite isole raconte rarement toute l'histoire. Les analystes construisent le contexte en correlant plusieurs evenements. »</p>
+        <p class="muted">Et : « Une detection est une raison d'enqueter, pas une preuve qu'un attaquant est present. »</p>
+      </div>
+
+      <h3 class="card-title standalone">Reference : les Event IDs utilises par cet outil</h3>
+      <div class="table-scroll">
+        <table class="data-table">
+          <caption class="visually-hidden">Signification des Event IDs Windows pris en charge</caption>
+          <thead><tr><th scope="col">Event ID</th><th scope="col">Nom</th><th scope="col">Explication simple</th></tr></thead>
+          <tbody id="eventid-reference"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="aide">
+    <div class="wrap">
+      <h2 class="section-title">7. Comment exporter vos journaux Windows</h2>
+      <ol class="steps">
+        <li>Ouvrez l'<strong>Observateur d'evenements</strong> (touche Windows, tapez <code>eventvwr</code>).</li>
+        <li>Developpez <strong>Journaux Windows</strong> puis cliquez sur <strong>Securite</strong>.</li>
+        <li>Filtrez si besoin (par exemple <em>Filtrer le journal actuel</em> → Event ID 4624, 4625, 4720...).</li>
+        <li>Selectionnez les evenements souhaites (Ctrl+A pour tout prendre).</li>
+        <li>Clic droit → <strong>Enregistrer les evenements selectionnes sous...</strong> et choisissez le format CSV.</li>
+        <li>Chargez ce fichier CSV dans cet outil.</li>
+      </ol>
+      <div class="warn-box small-box">
+        <p><strong>Note importante :</strong> l'Observateur d'evenements n'exporte pas toujours directement en CSV
+        selon les versions de Windows. Si le format CSV n'est pas propose, vous pouvez :
+        exporter en <em>.txt</em> (accepte par cet outil s'il est tabule ou separe par des virgules), ou
+        utiliser PowerShell en local pour produire un CSV, par exemple :</p>
+        <pre class="code-block">Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4624,4625,4720,4726,4728,4732,1102,4688,7045} -MaxEvents 500 |
+  Select-Object LevelDisplayName, TimeCreated, ProviderName, Id, Task, UserId, MachineName, Message |
+  Export-Csv -Path "$env:USERPROFILE\Desktop\evenements-securite.csv" -NoTypeInformation -Encoding UTF8</pre>
+        <p>Cette commande s'execute <strong>localement</strong> sur votre machine. Elle peut necessiter un
+        terminal lance en tant qu'administrateur pour lire le journal Securite.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="disclaimer">
+        <h2 class="section-title">Avertissement et limites</h2>
+        <p><strong>Outil educatif de triage SOC.</strong> Les constats indiquent une activite qui merite une investigation et ne prouvent pas un comportement malveillant.</p>
+        <p><strong>Analysez uniquement des journaux provenant de systemes que vous possedez ou que vous etes autorise a investiguer.</strong></p>
+        <p>Les exports CSV varient selon les versions de Windows, la langue du systeme et la configuration
+        d'audit. L'absence d'un evenement dans un export <strong>ne prouve pas</strong> que l'activite n'a pas eu lieu.
+        Cet outil ne remplace ni un EDR, ni un SIEM, ni un SOC professionnel.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p><strong>Windows Security Event Log Triage Tool</strong> — outil educatif, 100 % local, sans dependance externe.</p>
+    <p class="muted">Aucun cookie · Aucun traceur · Aucune requete reseau emise par l'application.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
+

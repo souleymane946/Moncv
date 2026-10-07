@@ -1,0 +1,112 @@
+Level,Date and Time,Source,Event ID,Task Category,User,Computer,Keywords,Message
+Error,10/10/2025 03:12:02,Microsoft-Windows-Security-Auditing,4625,Logon,r.dubois,PC-DEV-07,Audit Failure,"An account failed to log on.
+
+Subject:
+	Account Name:		PC-DEV-07$
+Logon Type:		3
+Account For Which Logon Failed:
+	Account Name:		r.dubois
+Network Information:
+	Workstation Name:	PC-DEV-07
+	Source Network Address:	203.0.113.77"
+Error,10/10/2025 03:13:02,Microsoft-Windows-Security-Auditing,4625,Logon,r.dubois,PC-DEV-07,Audit Failure,"An account failed to log on.
+
+Subject:
+	Account Name:		PC-DEV-07$
+Logon Type:		3
+Account For Which Logon Failed:
+	Account Name:		r.dubois
+Network Information:
+	Workstation Name:	PC-DEV-07
+	Source Network Address:	203.0.113.77"
+Error,10/10/2025 03:14:02,Microsoft-Windows-Security-Auditing,4625,Logon,r.dubois,PC-DEV-07,Audit Failure,"An account failed to log on.
+
+Subject:
+	Account Name:		PC-DEV-07$
+Logon Type:		3
+Account For Which Logon Failed:
+	Account Name:		r.dubois
+Network Information:
+	Workstation Name:	PC-DEV-07
+	Source Network Address:	203.0.113.77"
+Error,10/10/2025 03:15:02,Microsoft-Windows-Security-Auditing,4625,Logon,r.dubois,PC-DEV-07,Audit Failure,"An account failed to log on.
+
+Subject:
+	Account Name:		PC-DEV-07$
+Logon Type:		3
+Account For Which Logon Failed:
+	Account Name:		r.dubois
+Network Information:
+	Workstation Name:	PC-DEV-07
+	Source Network Address:	203.0.113.77"
+Error,10/10/2025 03:16:02,Microsoft-Windows-Security-Auditing,4625,Logon,r.dubois,PC-DEV-07,Audit Failure,"An account failed to log on.
+
+Subject:
+	Account Name:		PC-DEV-07$
+Logon Type:		3
+Account For Which Logon Failed:
+	Account Name:		r.dubois
+Network Information:
+	Workstation Name:	PC-DEV-07
+	Source Network Address:	203.0.113.77"
+Error,10/10/2025 03:17:02,Microsoft-Windows-Security-Auditing,4625,Logon,r.dubois,PC-DEV-07,Audit Failure,"An account failed to log on.
+
+Subject:
+	Account Name:		PC-DEV-07$
+Logon Type:		3
+Account For Which Logon Failed:
+	Account Name:		r.dubois
+Network Information:
+	Workstation Name:	PC-DEV-07
+	Source Network Address:	203.0.113.77"
+Error,10/10/2025 03:18:02,Microsoft-Windows-Security-Auditing,4625,Logon,r.dubois,PC-DEV-07,Audit Failure,"An account failed to log on.
+
+Subject:
+	Account Name:		PC-DEV-07$
+Logon Type:		3
+Account For Which Logon Failed:
+	Account Name:		r.dubois
+Network Information:
+	Workstation Name:	PC-DEV-07
+	Source Network Address:	203.0.113.77"
+Information,10/10/2025 03:22:15,Microsoft-Windows-Security-Auditing,4624,Logon,r.dubois,PC-DEV-07,Audit Success,"An account was successfully logged on.
+
+Subject:
+	Security ID:		S-1-5-18
+	Account Name:		PC-DEV-07$
+Logon Information:
+	Logon Type:		3
+New Logon:
+	Security ID:		S-1-5-21-0000
+	Account Name:		r.dubois
+Network Information:
+	Workstation Name:	PC-DEV-07
+	Source Network Address:	203.0.113.77"
+Information,10/10/2025 03:25:00,Microsoft-Windows-Security-Auditing,4720,User Account Management,r.dubois,SRV-AD-01,Audit Success,"A user account was created.
+
+Subject:
+	Account Name:		r.dubois
+New Account:
+	Account Name:		support-temp
+Computer:	SRV-AD-01"
+Information,10/10/2025 03:26:10,Microsoft-Windows-Security-Auditing,4728,Security Group Management,r.dubois,SRV-AD-01,Audit Success,"A member was added to a security-enabled global group.
+
+Subject:
+	Account Name:		r.dubois
+Member:
+	Account Name:		support-temp
+Group:
+	Group Name:		Domain Admins"
+Information,10/10/2025 03:30:00,Service Control Manager,7045,Service Installation,r.dubois,SRV-AD-01,Classic,"A service was installed in the system.
+
+Service Name:	WinUpdateHelper
+Service File Name:	C:\Program Files\Exemple\WinUpdateHelper.exe
+Account Name:	r.dubois"
+Information,10/10/2025 03:34:00,Microsoft-Windows-PowerShell,4104,Execute a Remote Command,r.dubois,SRV-AD-01,Classic,"Creating Scriptblock text (1 of 1):
+powershell.exe -nop -w hidden -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQA
+Account Name:	r.dubois"
+Warning,10/10/2025 03:36:00,Microsoft-Windows-Security-Auditing,1102,Audit Log Cleared,r.dubois,SRV-AD-01,Audit Success,"The audit log was cleared.
+
+Subject:
+	Account Name:		r.dubois
+Computer:	SRV-AD-01"

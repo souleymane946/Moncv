@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outils de cybersécurité pédagogiques — Triage local</title>
+<meta name="description" content="Trois outils éducatifs de cybersécurité fonctionnant 100% localement dans le navigateur : analyse de phishing, triage de trafic réseau, triage de journaux Windows.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Aller au contenu principal</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3l7 3v6c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6l7-3z"/>
+          <path d="M9.5 12.2l1.8 1.8 3.4-3.6"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>Outils de triage cybersécurité</strong>
+        <small>Projets pédagogiques, 100 % locaux</small>
+      </span>
+    </div>
+    <nav class="site-nav" aria-label="Navigation principale">
+      <a href="#outils">Les outils</a>
+      <a href="#principes">Principes</a>
+      <a href="#limites">Limites</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="privacy-banner" aria-label="Avis de confidentialité">
+    <div class="wrap">
+      <p>
+        <span class="pill pill-ok">100 % local</span>
+        <strong>Aucune donnée n'est envoyée nulle part.</strong>
+        Les trois outils analysent leurs données <em>uniquement dans votre navigateur</em> :
+        aucun serveur, aucune API d'IA, aucun service d'analyse, aucun cookie, aucune télémétrie.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="hero">
+        <h1>Trois outils pour apprendre le triage en cybersécurité</h1>
+        <p class="lead">
+          Chaque outil applique la même philosophie : des <strong>règles explicables</strong>,
+          des <strong>scores détaillés</strong> et des explications en langage simple.
+          Aucun n'affirme qu'une activité est malveillante : ils indiquent ce qui
+          <em>mérite une investigation</em>, et pourquoi.
+        </p>
+      </div>
+
+      <div class="warn-box" role="note">
+        <h2 class="warn-title">Avertissement</h2>
+        <ul>
+          <li>Ces outils sont <strong>éducatifs</strong>. Ils aident à trier et à comprendre, ils ne prouvent rien.</li>
+          <li>Analysez uniquement des données que vous êtes <strong>autorisé</strong> à examiner.</li>
+          <li>Ne cliquez jamais sur un lien suspect et n'ouvrez jamais une pièce jointe pour « tester ».</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="outils" class="section section-alt">
+    <div class="wrap">
+      <h2 class="section-title">Les trois outils</h2>
+      <div class="tools-grid">
+
+        <article class="tool-card">
+          <div class="tool-head">
+            <span class="tool-ico" aria-hidden="true">&#9993;</span>
+            <h3>Phishing Email Analyser</h3>
+          </div>
+          <p>Collez le contenu d'un e-mail suspect et obtenez un score de risque de 0 à 100,
+          la liste des signes d'alerte détectés et des recommandations concrètes.</p>
+          <ul class="tool-meta">
+            <li>22 indicateurs explicables</li>
+            <li>Analyse des liens, pièces jointes, en-têtes SPF/DKIM/DMARC</li>
+            <li>6 e-mails de démonstration fictifs</li>
+          </ul>
+          <a class="btn btn-primary" href="phishing-email-analyser/index.html">Ouvrir l'outil</a>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-head">
+            <span class="tool-ico" aria-hidden="true">&#9776;</span>
+            <h3>Network Traffic Triage Tool</h3>
+          </div>
+          <p>Chargez un export CSV Wireshark et obtenez un rapport de triage du trafic :
+          qui parle à qui, avec quel protocole, et quels comportements méritent une investigation.</p>
+          <ul class="tool-meta">
+            <li>7 règles de détection à seuils modifiables</li>
+            <li>Tableau de bord réseau et répartition des protocoles</li>
+            <li>4 captures fictives de démonstration</li>
+          </ul>
+          <a class="btn btn-primary" href="network-traffic-triage-tool/index.html">Ouvrir l'outil</a>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-head">
+            <span class="tool-ico" aria-hidden="true">&#9635;</span>
+            <h3>Windows Security Event Log Triage Tool</h3>
+          </div>
+          <p>Chargez un export CSV de l'Observateur d'événements Windows et obtenez un rapport
+          de type SOC : Event IDs importants, corrélations et pistes d'investigation.</p>
+          <ul class="tool-meta">
+            <li>12 Event IDs expliqués en langage simple</li>
+            <li>5 règles de corrélation (échecs vers réussite, persistance, journal effacé)</li>
+            <li>4 journaux fictifs de démonstration</li>
+          </ul>
+          <a class="btn btn-primary" href="windows-event-log-triage-tool/index.html">Ouvrir l'outil</a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="principes" class="section">
+    <div class="wrap">
+      <h2 class="section-title">Principes communs</h2>
+      <div class="method-grid">
+        <div class="card">
+          <h3 class="card-title">Tout se passe dans le navigateur</h3>
+          <p>Aucun backend, aucune base de données, aucun envoi de données. Vos fichiers
+          sont lus en mémoire par la page et jamais transmis.</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Des règles lisibles, pas d'IA opaque</h3>
+          <p>Aucun apprentissage automatique. Chaque détection correspond à une règle
+          compréhensible, avec un poids affiché et une explication.</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Sévérité = priorité, pas certitude</h3>
+          <p>Les niveaux (Informationnel, Faible, Moyen, Élevé) indiquent une priorité
+          d'investigation. Le niveau « Critique » est volontairement absent.</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Les faux positifs font partie du jeu</h3>
+          <p>Une sauvegarde ressemble à un scan, un service légitime à de la persistance.
+          Apprendre à distinguer les deux, c'est tout l'exercice.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <p><strong>Phrase à retenir :</strong> « Une anomalie est un point de départ pour une enquête, pas une preuve de compromission. »</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="limites" class="section section-alt">
+    <div class="wrap">
+      <div class="disclaimer">
+        <h2 class="section-title">Limites et usage responsable</h2>
+        <p>Ces outils sont des <strong>aides pédagogiques au triage</strong>. Ils ne remplacent ni un
+        antivirus, ni un EDR, ni un SIEM, ni un SOC professionnel.</p>
+        <p>L'absence d'alerte ne prouve pas qu'une activité est sûre ; la présence d'une alerte
+        ne prouve pas qu'une attaque est en cours.</p>
+        <p><strong>Analysez uniquement des systèmes, réseaux et journaux dont vous êtes propriétaire
+        ou que vous êtes autorisé à examiner.</strong></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p><strong>Outils de triage cybersécurité</strong> — projets éducatifs, 100 % locaux.</p>
+    <p class="muted">Aucun cookie · Aucun traceur · Aucune requête réseau émise par les applications.</p>
+  </div>
+</footer>
+
+</body>
+</html>
+

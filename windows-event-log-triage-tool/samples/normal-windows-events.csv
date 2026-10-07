@@ -1,0 +1,146 @@
+Level,Date and Time,Source,Event ID,Task Category,User,Computer,Keywords,Message
+Information,06/10/2025 08:05:10,Microsoft-Windows-Security-Auditing,4624,Logon,mgarcia,PC-COMPTA-01,Audit Success,"An account was successfully logged on.
+
+Subject:
+	Security ID:		S-1-5-18
+	Account Name:		PC-COMPTA-01$
+Logon Information:
+	Logon Type:		2
+New Logon:
+	Security ID:		S-1-5-21-0000
+	Account Name:		mgarcia
+Network Information:
+	Workstation Name:	PC-COMPTA-01
+	Source Network Address:	192.168.10.40"
+Information,06/10/2025 08:06:40,Microsoft-Windows-Security-Auditing,4688,Process Creation,mgarcia,PC-COMPTA-01,Audit Success,"A new process has been created.
+
+New Process Name:		C:\Program Files\Microsoft Office\WINWORD.EXE
+Creator Process Name:	C:\Windows\explorer.exe
+Process Command Line:	C:\Program Files\Microsoft Office\WINWORD.EXE
+Account Name:		mgarcia"
+Information,06/10/2025 08:06:10,Microsoft-Windows-Security-Auditing,4624,Logon,mgarcia,PC-COMPTA-01,Audit Success,"An account was successfully logged on.
+
+Subject:
+	Security ID:		S-1-5-18
+	Account Name:		PC-COMPTA-01$
+Logon Information:
+	Logon Type:		2
+New Logon:
+	Security ID:		S-1-5-21-0000
+	Account Name:		mgarcia
+Network Information:
+	Workstation Name:	PC-COMPTA-01
+	Source Network Address:	192.168.10.40"
+Information,06/10/2025 08:07:40,Microsoft-Windows-Security-Auditing,4688,Process Creation,mgarcia,PC-COMPTA-01,Audit Success,"A new process has been created.
+
+New Process Name:		C:\Program Files\Microsoft Office\WINWORD.EXE
+Creator Process Name:	C:\Windows\explorer.exe
+Process Command Line:	C:\Program Files\Microsoft Office\WINWORD.EXE
+Account Name:		mgarcia"
+Information,06/10/2025 08:07:10,Microsoft-Windows-Security-Auditing,4624,Logon,mgarcia,PC-COMPTA-01,Audit Success,"An account was successfully logged on.
+
+Subject:
+	Security ID:		S-1-5-18
+	Account Name:		PC-COMPTA-01$
+Logon Information:
+	Logon Type:		2
+New Logon:
+	Security ID:		S-1-5-21-0000
+	Account Name:		mgarcia
+Network Information:
+	Workstation Name:	PC-COMPTA-01
+	Source Network Address:	192.168.10.40"
+Information,06/10/2025 08:08:40,Microsoft-Windows-Security-Auditing,4688,Process Creation,mgarcia,PC-COMPTA-01,Audit Success,"A new process has been created.
+
+New Process Name:		C:\Program Files\Microsoft Office\WINWORD.EXE
+Creator Process Name:	C:\Windows\explorer.exe
+Process Command Line:	C:\Program Files\Microsoft Office\WINWORD.EXE
+Account Name:		mgarcia"
+Information,06/10/2025 08:08:10,Microsoft-Windows-Security-Auditing,4624,Logon,mgarcia,PC-COMPTA-01,Audit Success,"An account was successfully logged on.
+
+Subject:
+	Security ID:		S-1-5-18
+	Account Name:		PC-COMPTA-01$
+Logon Information:
+	Logon Type:		2
+New Logon:
+	Security ID:		S-1-5-21-0000
+	Account Name:		mgarcia
+Network Information:
+	Workstation Name:	PC-COMPTA-01
+	Source Network Address:	192.168.10.40"
+Information,06/10/2025 08:09:40,Microsoft-Windows-Security-Auditing,4688,Process Creation,mgarcia,PC-COMPTA-01,Audit Success,"A new process has been created.
+
+New Process Name:		C:\Program Files\Microsoft Office\WINWORD.EXE
+Creator Process Name:	C:\Windows\explorer.exe
+Process Command Line:	C:\Program Files\Microsoft Office\WINWORD.EXE
+Account Name:		mgarcia"
+Information,06/10/2025 08:09:10,Microsoft-Windows-Security-Auditing,4624,Logon,mgarcia,PC-COMPTA-01,Audit Success,"An account was successfully logged on.
+
+Subject:
+	Security ID:		S-1-5-18
+	Account Name:		PC-COMPTA-01$
+Logon Information:
+	Logon Type:		2
+New Logon:
+	Security ID:		S-1-5-21-0000
+	Account Name:		mgarcia
+Network Information:
+	Workstation Name:	PC-COMPTA-01
+	Source Network Address:	192.168.10.40"
+Information,06/10/2025 08:10:40,Microsoft-Windows-Security-Auditing,4688,Process Creation,mgarcia,PC-COMPTA-01,Audit Success,"A new process has been created.
+
+New Process Name:		C:\Program Files\Microsoft Office\WINWORD.EXE
+Creator Process Name:	C:\Windows\explorer.exe
+Process Command Line:	C:\Program Files\Microsoft Office\WINWORD.EXE
+Account Name:		mgarcia"
+Information,06/10/2025 09:12:05,Microsoft-Windows-Security-Auditing,4634,Logoff,mgarcia,PC-COMPTA-01,Audit Success,"An account was logged off.
+
+Account Name:		mgarcia"
+Information,06/10/2025 10:03:22,Microsoft-Windows-Security-Auditing,4624,Logon,svc-backup,SRV-FICHIER-02,Audit Success,"An account was successfully logged on.
+
+Subject:
+	Security ID:		S-1-5-18
+	Account Name:		SRV-FICHIER-02$
+Logon Information:
+	Logon Type:		5
+New Logon:
+	Security ID:		S-1-5-21-0000
+	Account Name:		svc-backup
+Network Information:
+	Workstation Name:	SRV-FICHIER-02
+	Source Network Address:	10.0.0.5"
+Information,06/10/2025 11:30:00,Microsoft-Windows-Security-Auditing,4672,Special Logon,admin.local,SRV-AD-01,Audit Success,"Special privileges assigned to new logon.
+
+Account Name:		admin.local"
+Error,06/10/2025 14:02:11,Microsoft-Windows-Security-Auditing,4625,Logon,mgarcia,PC-COMPTA-01,Audit Failure,"An account failed to log on.
+
+Subject:
+	Account Name:		PC-COMPTA-01$
+Logon Type:		2
+Account For Which Logon Failed:
+	Account Name:		mgarcia
+Network Information:
+	Workstation Name:	PC-COMPTA-01
+	Source Network Address:	192.168.10.40"
+Information,06/10/2025 14:02:30,Microsoft-Windows-Security-Auditing,4624,Logon,mgarcia,PC-COMPTA-01,Audit Success,"An account was successfully logged on.
+
+Subject:
+	Security ID:		S-1-5-18
+	Account Name:		PC-COMPTA-01$
+Logon Information:
+	Logon Type:		2
+New Logon:
+	Security ID:		S-1-5-21-0000
+	Account Name:		mgarcia
+Network Information:
+	Workstation Name:	PC-COMPTA-01
+	Source Network Address:	192.168.10.40"
+Information,07/10/2025 09:00:00,Service Control Manager,7045,Service Installation,admin.local,SRV-FICHIER-02,Classic,"A service was installed in the system.
+
+Service Name:	ExempleBackupAgent
+Service File Name:	C:\Program Files\Exemple\ExempleBackupAgent.exe
+Account Name:	admin.local"
+Information,07/10/2025 09:15:00,Microsoft-Windows-PowerShell,4104,Execute a Remote Command,admin.local,SRV-FICHIER-02,Classic,"Creating Scriptblock text (1 of 1):
+Get-Service | Where-Object {$_.Status -eq ""Running""}
+Account Name:	admin.local"
