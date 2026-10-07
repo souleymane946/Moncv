@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Traffic Triage Tool — Triage de trafic reseau (local)</title>
+<meta name="description" content="Outil educatif de triage de trafic reseau. Analyse locale d'un export CSV Wireshark, dans le navigateur, sans envoi de donnees.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Aller au contenu principal</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12h4l2.5-6 3 12L15 12h6"/>
+        </svg>
+      </span>
+      <span class="brand-text">
+        <strong>Network Traffic Triage Tool</strong>
+        <small>Outil de triage du trafic reseau (educatif)</small>
+      </span>
+    </div>
+    <nav class="site-nav" aria-label="Navigation principale">
+      <a href="#charger">Charger un CSV</a>
+      <a href="#tableau-de-bord">Tableau de bord</a>
+      <a href="#regles">Regles</a>
+      <a href="#methode">Methode</a>
+      <a href="../index.html">Autres outils</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="privacy-banner" aria-label="Avis de confidentialite">
+    <div class="wrap">
+      <p>
+        <span class="pill pill-ok">Analyse locale</span>
+        <strong>Vos donnees de capture reseau sont analysees localement dans votre navigateur et ne sont envoyees nulle part.</strong>
+        Aucun cookie, aucun traceur, aucune publicite, aucune telemetrie, aucun appel a une API externe.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="hero">
+        <h1>Comprendre un trafic reseau comme un analyste SOC</h1>
+        <p class="lead">
+          Capturez du trafic avec Wireshark, exportez la liste des paquets en CSV, puis chargez ce fichier ici.
+          L'outil resume le trafic et signale les comportements <strong>qui meritent une investigation</strong>,
+          en expliquant toujours pourquoi.
+        </p>
+      </div>
+
+      <div class="warn-box" role="note">
+        <h2 class="warn-title">Avertissement important</h2>
+        <ul>
+          <li><strong>Outil educatif de triage reseau.</strong> Les alertes indiquent une activite qui merite une investigation mais <strong>ne prouvent pas</strong> un comportement malveillant.</li>
+          <li><strong>Analysez uniquement des systemes et reseaux dont vous etes proprietaire ou que vous etes autorise a surveiller.</strong></li>
+          <li>Un trafic inhabituel n'est pas automatiquement une attaque : une anomalie est un <em>point de depart pour une enquete</em>, pas une preuve de compromission.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="charger" class="section section-alt">
+    <div class="wrap">
+      <h2 class="section-title">1. Charger un fichier CSV Wireshark</h2>
+
+      <div class="upload-grid">
+        <div id="dropzone" class="dropzone" tabindex="0" role="button"
+             aria-label="Deposer ou selectionner un fichier CSV Wireshark">
+          <svg class="drop-ico" viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+          </svg>
+          <p class="drop-title">Glissez votre fichier CSV ici</p>
+          <p class="drop-sub">ou cliquez pour choisir un fichier sur votre ordinateur</p>
+          <p class="drop-note">Formats acceptes : .csv, .txt — le fichier reste sur votre machine.</p>
+          <input type="file" id="file-input" accept=".csv,.txt,text/csv" class="visually-hidden">
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Etat du chargement</h3>
+          <ul class="stat-list" id="load-status">
+            <li><span class="stat-label">Fichier</span><span class="stat-val" id="st-file">—</span></li>
+            <li><span class="stat-label">Paquets lus</span><span class="stat-val" id="st-packets">0</span></li>
+            <li><span class="stat-label">Analyse du fichier</span><span class="stat-val" id="st-parse">—</span></li>
+            <li><span class="stat-label">Colonnes reconnues</span><span class="stat-val" id="st-cols">—</span></li>
+          </ul>
+          <div id="parse-messages" class="msg-area" aria-live="polite"></div>
+          <div class="actions compact">
+            <button type="button" class="btn btn-ghost" id="btn-reset">Reinitialiser</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="seuils">
+    <div class="wrap">
+      <h2 class="section-title">2. Seuils de detection (modifiables)</h2>
+      <p class="lead">Les seuils par defaut sont des valeurs pedagogiques. Les vrais seuils dependent de votre environnement : adaptez-les a votre reseau.</p>
+      <div class="card">
+        <div class="threshold-grid">
+          <label class="th-field">
+            <span>Paquets par source</span>
+            <input type="number" id="th-packets" value="50" min="1" step="1">
+          </label>
+          <label class="th-field">
+            <span>Destinations uniques par source</span>
+            <input type="number" id="th-dest" value="10" min="1" step="1">
+          </label>
+          <label class="th-field">
+            <span>Ports uniques vers une destination</span>
+            <input type="number" id="th-ports" value="10" min="1" step="1">
+          </label>
+          <label class="th-field">
+            <span>Paquets ICMP par source</span>
+            <input type="number" id="th-icmp" value="30" min="1" step="1">
+          </label>
+          <label class="th-field">
+            <span>Paquets DNS par source</span>
+            <input type="number" id="th-dns" value="30" min="1" step="1">
+          </label>
+          <label class="th-field">
+            <span>Paquets entre deux hotes</span>
+            <input type="number" id="th-pair" value="40" min="1" step="1">
+          </label>
+          <label class="th-field">
+            <span>SYN sans reponse par source</span>
+            <input type="number" id="th-syn" value="20" min="1" step="1">
+          </label>
+        </div>
+        <div class="actions compact">
+          <button type="button" class="btn btn-primary" id="btn-recompute">Recalculer avec ces seuils</button>
+          <button type="button" class="btn btn-ghost" id="btn-defaults">Reinitialiser les valeurs par defaut</button>
+        </div>
+        <p class="muted small">Astuce : le bouton « Recalculer » ne renvoie aucune donnee sur Internet, il relance simplement l'analyse dans la page.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="tableau-de-bord" class="section section-alt" hidden>
+    <div class="wrap">
+      <h2 class="section-title">3. Vue d'ensemble du reseau</h2>
+      <div class="kpi-grid" id="kpi-grid"></div>
+
+      <div class="two-col">
+        <div class="card">
+          <h3 class="card-title">Principales sources (Top 10)</h3>
+          <div id="top-sources" class="bar-list"></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Principales destinations (Top 10)</h3>
+          <div id="top-dest" class="bar-list"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Repartition des protocoles</h3>
+        <p class="muted">Seuls les protocoles presents dans la capture sont affiches.</p>
+        <div id="proto-list" class="bar-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="regles" class="section" hidden>
+    <div class="wrap">
+      <h2 class="section-title">4. Resultats du triage</h2>
+
+      <div class="score-grid">
+        <div class="card score-card">
+          <div class="score-head">
+            <span class="score-number" id="invest-score">0</span>
+            <div>
+              <p class="score-label">Score d'investigation</p>
+              <p class="score-level" id="invest-level">—</p>
+            </div>
+          </div>
+          <p class="score-note">
+            Ce score additionne des contributions <strong>visibles</strong> (voir ci-dessous).
+            Ce n'est <strong>pas</strong> une probabilite d'attaque : c'est un indicateur de priorite d'investigation.
+          </p>
+          <ul class="score-breakdown" id="score-breakdown"></ul>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Resume</h3>
+          <ul class="stat-list" id="summary-list"></ul>
+        </div>
+      </div>
+
+      <h3 class="card-title standalone">Alertes et observations</h3>
+      <p class="muted">Chaque carte suit le meme schema : nom, severite, preuves observees, pourquoi cela peut compter, explication benigne possible, investigation recommandee.</p>
+      <div class="alerts" id="alerts"></div>
+      <p class="empty-note" id="no-alerts" hidden>
+        Aucune activite depassant les seuils n'a ete detectee. Cela ne prouve pas que le reseau est sain :
+        cela signifie seulement qu'aucune des regles utilisees ne s'est declenchee sur cette capture.
+      </p>
+    </div>
+  </section>
+
+
+  <section class="section section-alt" id="exemples">
+    <div class="wrap">
+      <h2 class="section-title">5. Exemples de demonstration</h2>
+      <p class="lead">Captures <strong>entierement fictives</strong>, avec des adresses IP reservees (192.168.x.x, 10.x.x.x, 192.0.2.x). Aucune donnee reelle.</p>
+      <div class="sample-grid" id="sample-grid"></div>
+    </div>
+  </section>
+
+  <section class="section" id="methode">
+    <div class="wrap">
+      <h2 class="section-title">6. Comment penser comme un analyste</h2>
+      <ol class="steps">
+        <li><strong>Observer un comportement inhabituel.</strong> Un volume, un horaire ou une destination qui sort de l'ordinaire.</li>
+        <li><strong>Identifier la source et la destination.</strong> Qui parle, et a qui ?</li>
+        <li><strong>Identifier le protocole.</strong> DNS, TCP, ICMP… Le protocole oriente l'interpretation.</li>
+        <li><strong>Determiner si c'est attendu.</strong> Un serveur de sauvegarde qui envoie beaucoup de trafic la nuit est normal.</li>
+        <li><strong>Rechercher d'autres indicateurs.</strong> Un seul signe est faible, un cumul devient interessant.</li>
+        <li><strong>Correler avec d'autres sources.</strong> Journaux, inventaire, tickets, changements planifies.</li>
+        <li><strong>Decider si une investigation approfondie est necessaire.</strong> Trier, c'est prioriser, pas condamner.</li>
+      </ol>
+
+      <div class="callout">
+        <p><strong>Message cle :</strong> « Une anomalie est un point de depart pour une enquete, pas une preuve de compromission. »</p>
+      </div>
+
+      <div class="method-grid">
+        <div class="card">
+          <h3 class="card-title">Severite = priorite, pas certitude</h3>
+          <p>Nous utilisons 4 niveaux : <strong>Informationnel</strong>, <strong>Faible</strong>, <strong>Moyen</strong>, <strong>Eleve</strong>.
+          Le niveau « Critique » est volontairement absent : un outil de triage ne peut pas etre certain d'une attaque.</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Pas d'apprentissage automatique</h3>
+          <p>Aucune intelligence artificielle ici : uniquement des <strong>regles lisibles</strong> et des seuils que vous pouvez modifier.
+          L'objectif est de comprendre <em>pourquoi</em> une alerte se declenche.</p>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Le faux positif est normal</h3>
+          <p>Une sauvegarde, une mise a jour ou un outil d'administration produisent le meme type de trafic qu'un scan.
+          C'est justement l'exercice : apprendre a distinguer les deux par le contexte.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="wrap">
+      <div class="disclaimer">
+        <h2 class="section-title">Avertissement et limites</h2>
+        <p><strong>Outil educatif de triage reseau.</strong> Les alertes indiquent une activite qui merite une investigation mais ne prouvent pas un comportement malveillant.</p>
+        <p><strong>Analysez uniquement des systemes et reseaux dont vous etes proprietaire ou que vous etes autorise a surveiller.</strong></p>
+        <p>Cette version 1 analyse uniquement des <strong>exports CSV</strong> de Wireshark. Les fichiers .pcap et .pcapng ne sont pas pris en charge.
+        L'analyse est volontairement simplifiee : pas de fenetres temporelles, pas de baselining, pas de GeoIP, pas d'enrichissement externe.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p><strong>Network Traffic Triage Tool</strong> — outil educatif, 100 % local, sans dependance externe.</p>
+    <p class="muted">Aucun cookie · Aucun traceur · Aucune requete reseau emise par l'application.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
+
